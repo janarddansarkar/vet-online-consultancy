@@ -19,13 +19,20 @@
 
 ## Should fix
 
-- [ ] **5. Compress the photos.** `nitu_profile1.png` (2.0 MB) and `nitu_profile2.png` (1.7 MB). Convert to WebP at ~1200px wide (target ~100-200 KB each).
-- [ ] **6. "Forgot password?" goes nowhere** (`src/pages/Login.tsx:87`, `href="#"`). Build a password reset (needs an email service) or remove the link.
+- [x] **5. Compress the photos.** Done: converted to WebP at full resolution (1086x1448, quality 92, PSNR 42-45 dB so visually identical): 2.0 MB -> 206 KB and 1.7 MB -> 81 KB. Originals remain in git history.
+- [ ] **6. "Forgot password?" feature: built, email sending not working yet.**
+  - Done: `/forgot-password` and `/reset-password` pages, backend endpoints, emailed 30-minute single-use link, rate limit. Logic tested.
+  - **Blocker:** SMTP is configured in `backend/.env` (`smtp.gmail.com:587`, `drsarkar.vet@gmail.com`), but Gmail rejects the login (`535 Username and Password not accepted`). The values look correctly formatted, so the app password itself is the likely problem.
+    - [ ] Check the account has 2-Step Verification turned on and the address is typed exactly right.
+    - [ ] Create a fresh app password at myaccount.google.com/apppasswords (16 letters, no spaces), paste it as `SMTP_PASSWORD`, restart the backend.
+    - [ ] Re-test: `/forgot-password` with a registered email; check inbox and spam.
+  - Before production: set the same `SMTP_*` variables plus `APP_BASE_URL` (live domain) in the host's environment. Consider Brevo/Resend/SES for better delivery.
+  - Not yet committed.
 - [ ] **7. Rate-limit login and register endpoints** (e.g. `slowapi`) against password guessing and spam sign-ups.
 - [ ] **8. Add a privacy policy / terms page**, linked from the footer and booking form. The site collects phone numbers, addresses and pet medical details (India's DPDP Act 2023).
 - [ ] **9. Review public claims on the home page.**
-  - The 5.0 star rating is hard-coded in `Home.tsx`; remove it until there are real reviews.
-  - Confirm Dr. Sarkar is comfortable publishing "fewer than 10 mortalities across 200+ cases".
+  - ~~The 5.0 star rating is hard-coded in `Home.tsx`; remove it until there are real reviews.~~ Done: removed.
+  - Confirm Dr. Sarkar is comfortable publishing "fewer than 10 mortalities across 100+ cases".
 
 ## Nice to have
 

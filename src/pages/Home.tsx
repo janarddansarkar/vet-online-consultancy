@@ -1,18 +1,17 @@
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Button } from "../components/Button";
-import { AlertIcon, StarIcon, WhatsAppIcon } from "../components/icons";
+import { AlertIcon, WhatsAppIcon } from "../components/icons";
 import { doctorWhatsAppLink } from "../lib/whatsapp";
 import { Reveal } from "../components/Reveal";
 import { useAuth } from "../context/AuthContext";
-import heroImage from "../assets/images/nitu_profile1.png";
-import aboutImage from "../assets/images/nitu_profile2.png";
+import heroImage from "../assets/images/nitu_profile1.webp";
+import aboutImage from "../assets/images/nitu_profile2.webp";
 
 const doctor = {
   name: "Dr. Nituparna Sarkar",
   specialty: "Pet Animal Care · Veterinary Pathology",
   experience: "BVSc & A.H, MVSc (Pursuing)",
-  rating: 5.0,
   price: "Consultation fee on booking",
   bio: "Dr. Nituparna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
 };
@@ -80,7 +79,7 @@ const skills = [
 ];
 
 const stats = [
-  { value: "200+", label: "Clinical cases managed" },
+  { value: "100+", label: "Clinical cases managed" },
   { value: "<10", label: "Mortalities across those cases" },
   { value: "20+", label: "Pet post-mortems" },
   { value: "8+", label: "Wild elephant post-mortems" },
@@ -180,14 +179,7 @@ export function Home() {
                   {doctor.specialty} · {doctor.experience}
                 </p>
                 <p className="mt-4 text-base text-body">{doctor.bio}</p>
-                <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted">
-                  <span className="flex items-center gap-1 font-medium text-ink">
-                    <StarIcon className="h-4 w-4 text-amber-400" />
-                    {doctor.rating.toFixed(1)}
-                  </span>
-                  <span aria-hidden>·</span>
-                  <span>{doctor.price}</span>
-                </div>
+                <p className="mt-4 text-sm text-muted">{doctor.price}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {languages.map((lang) => (
                     <span key={lang} className="rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-600">
@@ -285,7 +277,7 @@ export function Home() {
               <span className="text-xs font-semibold uppercase tracking-wide text-primary-600">Clinical experience</span>
               <h2 className="mt-3 text-3xl font-bold text-ink">Cases handled</h2>
               <p className="mt-2 max-w-2xl text-base text-body">
-                Over 200 clinical cases managed with fewer than 10 mortalities, covering conditions such as:
+                Over 100 clinical cases managed with fewer than 10 mortalities, covering conditions such as:
               </p>
             </Reveal>
 
