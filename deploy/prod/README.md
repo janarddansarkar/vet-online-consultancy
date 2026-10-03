@@ -1,9 +1,9 @@
 # Prod branch: how the VPS (213.210.37.157) is currently set up
 
-- Site: https://213.210.37.157:8443 (self-signed cert in /etc/nginx/ssl/; port 80 belongs to Traefik, 8080 redirects to 8443)
-- Nginx config: `nginx-vps-selfsigned.conf` -> /etc/nginx/sites-available/vet
+- Site: https://213-210-37-157.nip.io (trusted Let's Encrypt cert issued by the server's Traefik, which owns ports 80/443; `traefik-vet-proxy.sh` creates the `vet-proxy` container that forwards to Nginx on 172.17.0.1:8081)
+- Nginx config: `nginx-vps.conf` -> /etc/nginx/sites-available/vet
 - Backend: systemd service `vet-backend` (see below), reads `backend/.env` (see `.env.prod.example`)
-- Frontend: `VITE_SITE_URL=https://213.210.37.157:8443 npm run build`, served from `dist/`
+- Frontend: `VITE_SITE_URL=https://213-210-37-157.nip.io npm run build`, served from `dist/`
 - Needs Node 20+, PostgreSQL 16, Nginx.
 
 The `dev` branch is for local development (`uvicorn` + `npm run dev`, see the root README).
