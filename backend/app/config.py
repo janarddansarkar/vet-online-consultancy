@@ -26,6 +26,13 @@ class Settings(BaseSettings):
     # Password for the doctor's admin dashboard. Generated and saved to backend/.env on first run if not set.
     admin_password: str = ""
     app_base_url: str = "http://localhost:5173"
+    # Outgoing email (password reset links). Without SMTP_HOST the reset link is only written to the backend log.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    password_reset_expire_minutes: int = 30
 
     @property
     def cors_origin_list(self) -> list[str]:

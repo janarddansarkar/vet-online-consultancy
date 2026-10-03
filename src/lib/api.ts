@@ -104,6 +104,17 @@ export function googleAuth(credential: string) {
   return request<AuthResponse>("/auth/google", { method: "POST", body: JSON.stringify({ credential }) });
 }
 
+export function forgotPassword(email: string) {
+  return request<{ message: string }>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) });
+}
+
+export function resetPassword(token: string, password: string) {
+  return request<{ message: string }>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, password }),
+  });
+}
+
 export function fetchMe(token: string) {
   return request<User>("/auth/me", { headers: authHeaders(token) });
 }

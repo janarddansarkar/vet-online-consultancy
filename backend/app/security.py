@@ -1,3 +1,5 @@
+import hashlib
+import secrets
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
@@ -38,9 +40,38 @@ def _decode(token: str) -> dict | None:
 def decode_access_token(token: str) -> str | None:
     """Subject of an owner's token. Admin tokens are not valid here."""
     payload = _decode(token)
-    if payload is None or payload.get("role") == "admin":
+    if payload is None or "role" in payload or "purpose" in payload:
         return None
     return payload.get("sub")
+
+
+def _password_fingerprint(password_hash: str | None) -> str:
+    return hashlib.sha256((password_hash or "").encode()).hexdigest()[:16]
+
+
+def create_password_reset_token(user_id: str, password_hash: str | None) -> str:
+    """Single-use in effect: it embeds a fingerprint of the current password, so it stops working once the
+    password changes."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.password_reset_expire_minutes)
+    payload = {
+        "sub": user_id,
+        "purpose": "password_reset",
+        "pwd": _password_fingerprint(password_hash),
+        "exp": expire,
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def decode_password_reset_token(token: str) -> tuple[str, str] | None:
+    """Returns (user id, password fingerprint) for a valid reset token."""
+    payload = _decode(token)
+    if payload is None or payload.get("purpose") != "password_reset":
+        return None
+    return payload.get("sub"), payload.get("pwd", "")
+
+
+def password_matches_fingerprint(password_hash: str | None, fingerprint: str) -> bool:
+    return secrets.compare_digest(_password_fingerprint(password_hash), fingerprint)
 
 
 def is_admin_token(token: str) -> bool:
