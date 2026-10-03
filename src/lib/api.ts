@@ -47,9 +47,12 @@ export interface AppointmentAdmin extends Appointment {
 }
 
 export class ApiError extends Error {
-  constructor(message: string) {
+  status: number;
+
+  constructor(message: string, status = 0) {
     super(message);
     this.name = "ApiError";
+    this.status = status;
   }
 }
 
@@ -83,7 +86,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => null);
     const message = body?.detail ?? "Something went wrong. Please try again.";
-    throw new ApiError(typeof message === "string" ? message : "Something went wrong. Please try again.");
+    throw new ApiError(typeof message === "string" ? message : "Something went wrong. Please try again.", res.status);
   }
 
   return res.json() as Promise<T>;
@@ -142,12 +145,48 @@ export function createAppointment(token: string, input: AppointmentInput) {
   });
 }
 
-export function listAdminAppointments(status?: AppointmentStatus) {
-  const qs = status ? `?status=${status}` : "";
-  return request<AppointmentAdmin[]>(`/admin/appointments${qs}`);
+// The admin session is separate from owner accounts: it has its own token.
+const ADMIN_TOKEN_KEY = "vet_consult_admin_token";
+
+export function getAdminToken(): string | null {
+  return localStorage.getItem(ADMIN_TOKEN_KEY);
 }
 
-export const APPOINTMENTS_EXPORT_URL = "/api/admin/appointments/export";
+export function clearAdminToken() {
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+}
+
+function adminHeaders(): HeadersInit {
+  const token = getAdminToken();
+  return token ? authHeaders(token) : {};
+}
+
+export async function adminLogin(password: string) {
+  const res = await request<{ access_token: string }>("/admin/login", {
+    method: "POST",
+    body: JSON.stringify({ password }),
+  });
+  localStorage.setItem(ADMIN_TOKEN_KEY, res.access_token);
+}
+
+export function listAdminAppointments(status?: AppointmentStatus) {
+  const qs = status ? `?status=${status}` : "";
+  return request<AppointmentAdmin[]>(`/admin/appointments${qs}`, { headers: adminHeaders() });
+}
+
+// A plain link can't send the auth header, so fetch the file and save it from a blob.
+export async function downloadAppointmentsExport() {
+  const res = await fetch("/api/admin/appointments/export", { headers: adminHeaders() });
+  if (!res.ok) throw new ApiError("Couldn't download the export.", res.status);
+  const disposition = res.headers.get("Content-Disposition") ?? "";
+  const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? "consultation-requests.xlsx";
+  const url = URL.createObjectURL(await res.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 export function updateAppointmentStatus(
   appointmentId: string,
@@ -155,6 +194,7 @@ export function updateAppointmentStatus(
 ) {
   return request<AppointmentAdmin>(`/admin/appointments/${appointmentId}/status`, {
     method: "PATCH",
+    headers: adminHeaders(),
     body: JSON.stringify(input),
   });
 }

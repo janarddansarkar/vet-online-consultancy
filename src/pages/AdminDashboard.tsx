@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Button } from "../components/Button";
+import { Input } from "../components/Input";
 import { ChatIcon, PawIcon } from "../components/icons";
 import * as api from "../lib/api";
 import { ApiError } from "../lib/api";
@@ -34,7 +35,71 @@ function formatDateTime(iso: string): string {
 }
 
 export function AdminDashboard() {
+  const [authed, setAuthed] = useState(() => api.getAdminToken() !== null);
 
+  function endSession() {
+    api.clearAdminToken();
+    setAuthed(false);
+  }
+
+  if (!authed) return <AdminLogin onSuccess={() => setAuthed(true)} />;
+  return <AppointmentsView onSessionExpired={endSession} />;
+}
+
+function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await api.adminLogin(password);
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen flex-col bg-bg">
+      <Header />
+      <main className="flex flex-1 items-center justify-center px-6 py-16">
+        <div className="w-full max-w-[420px] rounded-2xl border border-border bg-white p-10">
+          <div className="flex flex-col items-center text-center">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-600 text-white">
+              <PawIcon className="h-6 w-6" />
+            </span>
+            <h1 className="mt-5 text-2xl font-bold text-ink">Doctor login</h1>
+            <p className="mt-2 text-sm text-muted">Enter the admin password to view consultation requests.</p>
+          </div>
+          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
+            {error && <p className="rounded-lg bg-danger-50 px-4 py-3 text-sm font-medium text-danger-600">{error}</p>}
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+              {submitting ? "Logging in…" : "Login"}
+            </Button>
+          </form>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }) {
   const [filter, setFilter] = useState<api.AppointmentStatus | "ALL">("PENDING");
   const [appointments, setAppointments] = useState<api.AppointmentAdmin[]>([]);
   const [listLoading, setListLoading] = useState(false);
@@ -49,7 +114,10 @@ export function AdminDashboard() {
     api
       .listAdminAppointments(filter === "ALL" ? undefined : filter)
       .then(setAppointments)
-      .catch((err) => setListError(err instanceof ApiError ? err.message : "Couldn't load appointments."))
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) return onSessionExpired();
+        setListError(err instanceof ApiError ? err.message : "Couldn't load appointments.");
+      })
       .finally(() => setListLoading(false));
   }
 
@@ -70,6 +138,7 @@ export function AdminDashboard() {
       );
       setCancellingId(null);
     } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return onSessionExpired();
       setActionError(err instanceof ApiError ? err.message : "Couldn't update the appointment. Please try again.");
       loadAppointments();
     } finally {
@@ -90,13 +159,25 @@ export function AdminDashboard() {
               <h1 className="text-2xl font-bold text-ink">Appointments</h1>
               <p className="text-sm text-muted">Consultations happen over WhatsApp video — update status here after each call.</p>
             </div>
-            <a
-              href={api.APPOINTMENTS_EXPORT_URL}
-              download
-              className="ml-auto inline-flex h-10 shrink-0 items-center rounded-lg border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-ink"
-            >
-              Download Excel
-            </a>
+            <div className="ml-auto flex shrink-0 gap-2">
+              <button
+                onClick={() =>
+                  api.downloadAppointmentsExport().catch((err) => {
+                    if (err instanceof ApiError && err.status === 401) return onSessionExpired();
+                    setActionError("Couldn't download the Excel file. Please try again.");
+                  })
+                }
+                className="inline-flex h-10 items-center rounded-lg border border-border bg-white px-4 text-sm font-semibold text-ink hover:border-ink"
+              >
+                Download Excel
+              </button>
+              <button
+                onClick={onSessionExpired}
+                className="inline-flex h-10 items-center rounded-lg px-3 text-sm font-semibold text-body hover:bg-gray-100"
+              >
+                Log out
+              </button>
+            </div>
           </div>
 
           <div className="mt-6 flex flex-wrap gap-2">

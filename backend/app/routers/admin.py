@@ -1,19 +1,53 @@
+import secrets
+import time
 import uuid
 from datetime import date, datetime
 from io import BytesIO
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
+from app.deps import require_admin
 from app.models import Appointment, AppointmentStatus, PetGender
-from app.schemas import AppointmentAdminOut, AppointmentOut, AppointmentStatusUpdateRequest
+from app.schemas import (
+    AdminLoginRequest,
+    AdminTokenResponse,
+    AppointmentAdminOut,
+    AppointmentOut,
+    AppointmentStatusUpdateRequest,
+)
+from app.security import create_admin_token
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+# Everything except /login needs the doctor's admin token.
+protected = APIRouter(dependencies=[Depends(require_admin)])
 
-# Single-doctor practice. There's no admin login: the dashboard and these endpoints are open by design.
+# Single-doctor practice: one shared admin password (ADMIN_PASSWORD), separate from owner accounts.
+MAX_FAILED_LOGINS = 5
+LOCKOUT_SECONDS = 600
+_failed_logins: dict[str, list[float]] = {}
+
+
+@router.post("/login", response_model=AdminTokenResponse)
+def admin_login(payload: AdminLoginRequest, request: Request) -> AdminTokenResponse:
+    client = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+    recent = [t for t in _failed_logins.get(client, []) if now - t < LOCKOUT_SECONDS]
+    if len(recent) >= MAX_FAILED_LOGINS:
+        _failed_logins[client] = recent
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many attempts. Try again later.")
+
+    if not secrets.compare_digest(payload.password.encode(), settings.admin_password.encode()):
+        _failed_logins[client] = recent + [now]
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
+
+    _failed_logins.pop(client, None)
+    return AdminTokenResponse(access_token=create_admin_token())
+
 ALLOWED_TRANSITIONS: dict[AppointmentStatus, set[AppointmentStatus]] = {
     AppointmentStatus.PENDING: {AppointmentStatus.CONFIRMED, AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED},
     AppointmentStatus.CONFIRMED: {AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED},
@@ -33,7 +67,7 @@ def _to_admin_out(appointment: Appointment) -> AppointmentAdminOut:
     )
 
 
-@router.get("/appointments", response_model=list[AppointmentAdminOut])
+@protected.get("/appointments", response_model=list[AppointmentAdminOut])
 def list_admin_appointments(
     status_filter: AppointmentStatus | None = Query(default=None, alias="status"),
     db: Session = Depends(get_db),
@@ -86,7 +120,7 @@ EXPORT_COLUMNS = [
 ]
 
 
-@router.get("/appointments/export")
+@protected.get("/appointments/export")
 def export_appointments(db: Session = Depends(get_db)) -> Response:
     workbook = Workbook()
     sheet = workbook.active
@@ -113,7 +147,7 @@ def export_appointments(db: Session = Depends(get_db)) -> Response:
     )
 
 
-@router.patch("/appointments/{appointment_id}/status", response_model=AppointmentAdminOut)
+@protected.patch("/appointments/{appointment_id}/status", response_model=AppointmentAdminOut)
 def update_appointment_status(
     appointment_id: uuid.UUID,
     payload: AppointmentStatusUpdateRequest,
@@ -135,3 +169,6 @@ def update_appointment_status(
     db.commit()
     db.refresh(appointment)
     return _to_admin_out(appointment)
+
+
+router.include_router(protected)

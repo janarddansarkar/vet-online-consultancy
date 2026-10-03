@@ -24,3 +24,5 @@ npm run dev
 ```
 
 Runs at http://localhost:5173 (admin dashboard at http://localhost:5173/admin)
+
+The admin dashboard asks for a password. On first run the backend generates one, saves it as `ADMIN_PASSWORD` in `backend/.env` and prints it once in the backend console. Set `ADMIN_PASSWORD` yourself in production.

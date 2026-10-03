@@ -38,6 +38,15 @@ class GoogleAuthRequest(BaseModel):
     credential: str
 
 
+class AdminLoginRequest(BaseModel):
+    password: str = Field(min_length=1, max_length=200)
+
+
+class AdminTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
 # ---------------------------------------------------------------------------
 # Pets
 # ---------------------------------------------------------------------------

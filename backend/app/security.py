@@ -22,9 +22,27 @@ def create_access_token(subject: str) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def decode_access_token(token: str) -> str | None:
+def create_admin_token() -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.admin_token_expire_minutes)
+    payload = {"sub": "admin", "role": "admin", "exp": expire}
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def _decode(token: str) -> dict | None:
     try:
-        payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
     except JWTError:
         return None
+
+
+def decode_access_token(token: str) -> str | None:
+    """Subject of an owner's token. Admin tokens are not valid here."""
+    payload = _decode(token)
+    if payload is None or payload.get("role") == "admin":
+        return None
     return payload.get("sub")
+
+
+def is_admin_token(token: str) -> bool:
+    payload = _decode(token)
+    return payload is not None and payload.get("role") == "admin"

@@ -20,8 +20,11 @@ class Settings(BaseSettings):
     jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 1440
+    admin_token_expire_minutes: int = 480
     cors_origins: str = "http://localhost:5173"
     google_client_id: str = ""
+    # Password for the doctor's admin dashboard. Generated and saved to backend/.env on first run if not set.
+    admin_password: str = ""
     app_base_url: str = "http://localhost:5173"
 
     @property
@@ -29,16 +32,22 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
-def _ensure_secret(settings: Settings, field: str, generate) -> None:
-    """Generate a missing secret once and save it to backend/.env so it survives restarts."""
+def _ensure_secret(settings: Settings, field: str, generate) -> bool:
+    """Generate a missing secret once and save it to backend/.env so it survives restarts.
+
+    Returns True when a new value was generated.
+    """
     if getattr(settings, field):
-        return
+        return False
     value = generate()
     setattr(settings, field, value)
     existing = ENV_FILE.read_text() if ENV_FILE.exists() else ""
     separator = "" if not existing or existing.endswith("\n") else "\n"
     ENV_FILE.write_text(f"{existing}{separator}{field.upper()}={value}\n")
+    return True
 
 
 settings = Settings()
 _ensure_secret(settings, "jwt_secret", lambda: secrets.token_hex(32))
+if _ensure_secret(settings, "admin_password", lambda: secrets.token_urlsafe(12)):
+    print(f"\nAdmin dashboard password (saved to {ENV_FILE}): {settings.admin_password}\n")
