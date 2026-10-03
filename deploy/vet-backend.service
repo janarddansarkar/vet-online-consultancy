@@ -1,0 +1,21 @@
+# systemd unit that keeps the FastAPI backend running (starts on boot, restarts on crash).
+# Copy to /etc/systemd/system/vet-backend.service, then:
+#   sudo systemctl daemon-reload && sudo systemctl enable --now vet-backend
+#   journalctl -u vet-backend -f        (live logs)
+[Unit]
+Description=Vet Online Consultancy backend
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=vet
+Group=vet
+WorkingDirectory=/srv/vet/backend
+# One process only: migrations run at startup, and the login rate limits are kept in memory.
+# --proxy-headers makes uvicorn trust Nginx's X-Forwarded-For so request.client is the real visitor.
+ExecStart=/srv/vet/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

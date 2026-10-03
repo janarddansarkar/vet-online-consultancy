@@ -1,6 +1,7 @@
 import secrets
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
@@ -33,6 +34,15 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from: str = ""
     password_reset_expire_minutes: int = 30
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_psycopg_driver(cls, value: str) -> str:
+        """Hosts and docs often give postgres:// or postgresql://; SQLAlchemy needs the psycopg 3 driver prefix."""
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg://" + value[len(prefix):]
+        return value
 
     @property
     def cors_origin_list(self) -> list[str]:
