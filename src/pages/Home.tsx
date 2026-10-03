@@ -4,6 +4,8 @@ import { Button } from "../components/Button";
 import { AlertIcon, StarIcon, WhatsAppIcon } from "../components/icons";
 import { doctorWhatsAppLink } from "../lib/whatsapp";
 import { useAuth } from "../context/AuthContext";
+import heroImage from "../assets/images/nitu_profile1.png";
+import aboutImage from "../assets/images/nitu_profile2.png";
 
 const doctor = {
   name: "Dr. Nituparna Sarkar",
@@ -96,8 +98,12 @@ export function Home() {
               </a>
             )}
           </div>
-          <div className="flex h-80 items-center justify-center rounded-3xl bg-gradient-to-br from-primary-100 to-primary-50 text-8xl lg:h-96">
-            🐕
+          <div className="h-80 overflow-hidden rounded-3xl bg-gradient-to-br from-primary-100 to-primary-50 lg:h-96">
+            <img
+              src={heroImage}
+              alt="Dr. Nituparna Sarkar examining a dog"
+              className="h-full w-full object-cover object-top"
+            />
           </div>
         </section>
 
@@ -105,8 +111,12 @@ export function Home() {
         <section id="about" className="scroll-mt-[88px] bg-white py-20">
           <div className="mx-auto max-w-5xl px-6 lg:px-20">
             <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[280px_1fr]">
-              <div className="mx-auto flex h-56 w-56 items-center justify-center rounded-3xl bg-gradient-to-br from-primary-100 to-primary-50 text-7xl lg:mx-0">
-                🩺
+              <div className="mx-auto h-72 w-56 overflow-hidden rounded-3xl bg-gradient-to-br from-primary-100 to-primary-50 lg:mx-0">
+                <img
+                  src={aboutImage}
+                  alt="Dr. Nituparna Sarkar in scrubs"
+                  className="h-full w-full object-cover object-top"
+                />
               </div>
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wide text-primary-600">
