@@ -1,0 +1,14 @@
+[Unit]
+Description=Vet Online Consultancy backend
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=root
+WorkingDirectory=/root/vet-online-consultancy/backend
+ExecStart=/root/vet-online-consultancy/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
