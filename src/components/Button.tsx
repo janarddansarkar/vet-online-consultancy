@@ -14,7 +14,7 @@ const variantClasses: Record<Variant, string> = {
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-6 h-12 text-sm font-semibold transition-colors disabled:opacity-50 disabled:pointer-events-none";
+  "inline-flex items-center justify-center gap-2 rounded-lg px-6 h-12 text-sm font-semibold transition duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
 
 interface CommonProps {
   variant?: Variant;

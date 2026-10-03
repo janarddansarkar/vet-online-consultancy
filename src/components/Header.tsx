@@ -85,7 +85,7 @@ export function Header() {
       </div>
 
       {menuOpen && (
-        <div className="flex flex-col gap-1 border-t border-border bg-white px-6 py-4 lg:hidden">
+        <div className="animate-fade-up flex flex-col gap-1 border-t border-border bg-white px-6 py-4 lg:hidden">
           {navLinks.map((link) => (
             <a key={link.label} href={link.href} className="rounded-lg px-3 py-2 text-sm font-medium text-body hover:bg-gray-50">
               {link.label}
