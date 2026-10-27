@@ -24,7 +24,7 @@ Deployment guide: "Deploying to a VPS" in `README.md`; config templates in `depl
 - [ ] Add the live domain to the allowed JavaScript origins for the Google sign-in client in Google Cloud Console.
 - [ ] Install the nightly backup (`deploy/backup-db.sh`); test a restore once; arrange an off-server copy and turn on Hostinger snapshots.
 - [ ] Check the server can send mail: outbound port 587 must be open (some VPS providers block SMTP).
-- [ ] Rate-limit login and register at the server (Nginx `limit_req` on `/api/auth/`) or in the app (`slowapi`), against password guessing and spam sign-ups. Admin login and forgot-password already have in-memory limits.
+- [x] Rate-limit login and register at the server (Nginx `limit_req` on `/api/auth/`, in `deploy/nginx.conf`).
 
 ## C. Final checks after deploying
 
@@ -38,7 +38,7 @@ Deployment guide: "Deploying to a VPS" in `README.md`; config templates in `depl
 
 ## D. Later / nice to have
 
-- [ ] Add a 404 page (unknown URLs currently show a blank page).
+- [x] Add a 404 page.
 - [ ] Avoid duplicate pet records: every booking creates a new pet, so returning owners get duplicates.
 - [ ] Set up error monitoring (e.g. Sentry) and uptime monitoring (e.g. UptimeRobot).
 - [ ] If the backend ever runs more than one instance, move the in-memory rate limits to a shared store and run migrations as a separate deploy step.

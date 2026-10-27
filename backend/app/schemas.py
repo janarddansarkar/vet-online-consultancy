@@ -2,21 +2,27 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, EmailStr, Field
+from typing import Annotated
+
+from pydantic import AfterValidator, BaseModel, EmailStr, Field, field_validator
 
 from app.models import AppointmentStatus, PetGender
 
 
+# Lower-cased so "Jane@x.com" and "jane@x.com" are the same account.
+LowerEmail = Annotated[EmailStr, AfterValidator(str.lower)]
+
+
 class RegisterRequest(BaseModel):
     full_name: str = Field(min_length=1, max_length=200)
-    email: EmailStr
+    email: LowerEmail
     phone: str = Field(min_length=7, max_length=30)
     password: str = Field(min_length=8, max_length=128)
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+    email: LowerEmail
+    password: str = Field(max_length=128)
 
 
 class UserOut(BaseModel):
@@ -35,7 +41,7 @@ class AuthResponse(BaseModel):
 
 
 class ForgotPasswordRequest(BaseModel):
-    email: EmailStr
+    email: LowerEmail
 
 
 class ResetPasswordRequest(BaseModel):
@@ -71,10 +77,17 @@ class PetCreateRequest(BaseModel):
     breed: str | None = Field(default=None, max_length=100)
     gender: PetGender = PetGender.UNKNOWN
     date_of_birth: date | None = None
-    weight_kg: Decimal | None = None
-    allergies: str | None = None
-    current_medications: str | None = None
-    medical_history: str | None = None
+    weight_kg: Decimal | None = Field(default=None, gt=0, lt=10000, decimal_places=2)
+    allergies: str | None = Field(default=None, max_length=2000)
+    current_medications: str | None = Field(default=None, max_length=2000)
+    medical_history: str | None = Field(default=None, max_length=5000)
+
+    @field_validator("date_of_birth")
+    @classmethod
+    def _not_in_future(cls, value: date | None) -> date | None:
+        if value is not None and value > date.today():
+            raise ValueError("Date of birth cannot be in the future")
+        return value
 
 
 class PetOut(BaseModel):

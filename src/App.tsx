@@ -5,6 +5,7 @@ import { Register } from "./pages/Register";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Book } from "./pages/Book";
+import { NotFound } from "./pages/NotFound";
 import { AdminDashboard } from "./pages/AdminDashboard";
 import { AuthProvider } from "./context/AuthContext";
 import { ScrollToHash } from "./components/ScrollToHash";
@@ -22,6 +23,7 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/book" element={<Book />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <WhatsAppFloatingButton />
     </AuthProvider>

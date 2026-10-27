@@ -438,7 +438,8 @@ export function Book() {
                   <span className="text-sm font-semibold text-ink">Weight in kg (optional)</span>
                   <input
                     type="number"
-                    min="0"
+                    min="0.1"
+                    max="9999"
                     step="0.1"
                     className={inputClass}
                     placeholder="e.g. 12.5"

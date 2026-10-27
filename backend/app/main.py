@@ -14,7 +14,15 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Vet Online Consultancy API", lifespan=lifespan)
+# Interactive API docs only for local development; the live site doesn't expose the API schema.
+_is_local = settings.app_base_url.startswith("http://localhost")
+app = FastAPI(
+    title="Vet Online Consultancy API",
+    lifespan=lifespan,
+    docs_url="/docs" if _is_local else None,
+    redoc_url=None,
+    openapi_url="/openapi.json" if _is_local else None,
+)
 
 app.add_middleware(
     CORSMiddleware,
