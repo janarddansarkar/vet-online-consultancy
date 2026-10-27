@@ -32,7 +32,7 @@ Password reset emails need SMTP settings in `backend/.env` (see `backend/.env.ex
 
 ## Deploying to a VPS (Ubuntu, with PostgreSQL on the same server)
 
-Everything runs on one server: Nginx serves the built site and proxies `/api` to the backend, which talks to a local PostgreSQL. Config templates are in `deploy/`. Replace `YOUR_DOMAIN` everywhere, and point the domain's DNS A record at the server's IP first.
+Everything runs on one server: Nginx serves the built site and proxies `/api` to the backend, which talks to a local PostgreSQL. Config templates are in `deploy/`. Point the domain's DNS A record at the server's IP first.
 
 **1. Packages and firewall**
 
@@ -64,8 +64,8 @@ Create `/srv/vet/backend/.env` (owned by `vet`, `chmod 600`):
 DATABASE_URL=postgresql+psycopg://vet_app:PASTE_PASSWORD@localhost:5432/vet_online_consultancy
 JWT_SECRET=<output of: openssl rand -hex 32>
 ADMIN_PASSWORD=<a strong password for /admin>
-CORS_ORIGINS=https://YOUR_DOMAIN
-APP_BASE_URL=https://YOUR_DOMAIN
+CORS_ORIGINS=https://drnituporna.com
+APP_BASE_URL=https://drnituporna.com
 GOOGLE_CLIENT_ID=
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -86,18 +86,18 @@ curl http://127.0.0.1:8000/api/health        # {"status":"ok"}
 
 ```bash
 cd /srv/vet
-printf 'VITE_SITE_URL=https://YOUR_DOMAIN\nVITE_DOCTOR_WHATSAPP=91XXXXXXXXXX\nVITE_GOOGLE_CLIENT_ID=\n' | sudo -u vet tee .env.local
+printf 'VITE_SITE_URL=https://drnituporna.com\nVITE_DOCTOR_WHATSAPP=91XXXXXXXXXX\nVITE_GOOGLE_CLIENT_ID=\n' | sudo -u vet tee .env.local
 sudo -u vet bash -c 'npm ci && npm run build'    # writes /srv/vet/dist
 ```
 
 **5. Nginx and HTTPS**
 
 ```bash
-sudo cp deploy/nginx.conf /etc/nginx/sites-available/vet      # edit YOUR_DOMAIN first
+sudo cp deploy/nginx.conf /etc/nginx/sites-available/vet      
 sudo ln -s /etc/nginx/sites-available/vet /etc/nginx/sites-enabled/vet
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d YOUR_DOMAIN -d www.YOUR_DOMAIN
+sudo certbot --nginx -d drnituporna.com -d www.drnituporna.com
 ```
 
 **6. Backups**: the database holds owners' contact details and pet medical records.
