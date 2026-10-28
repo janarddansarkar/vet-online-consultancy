@@ -10,7 +10,7 @@ Deployment guide: "Deploying to a VPS" in `README.md`; config templates in `depl
   - [ ] Confirm 2-Step Verification is on for `drsarkar.vet@gmail.com`, create a fresh app password at myaccount.google.com/apppasswords (16 letters, no spaces), put it in `backend/.env`, restart, test `/forgot-password`.
   - [ ] Or use Brevo/Resend/SES for better delivery than Gmail (needs a verified sending domain).
 - [ ] **Confirm public claims with Dr. Sarkar.** The home page says "100+ clinical cases managed" and "fewer than 10 mortalities"; her CV (`details.docx`) says 200+, so check the lower figure is intended.
-- [ ] **Add a privacy policy / terms page** (footer + booking form). The site collects phone numbers, addresses and pet medical details (India's DPDP Act 2023).
+- [x] **Add a privacy policy / terms page** (footer + booking and register forms; draft at `/privacy`, have it reviewed). The site collects phone numbers, addresses and pet medical details (India's DPDP Act 2023).
 - [ ] **Decide the open questions below** (they change page text).
 
 ## B. On the server (follow the README, in this order)

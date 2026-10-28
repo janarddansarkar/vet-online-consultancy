@@ -121,6 +121,14 @@ export function Register() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
+            <p className="text-center text-xs text-muted">
+              By continuing you agree to our{" "}
+              <Link to="/privacy" className="underline">
+                Privacy Policy &amp; Terms
+              </Link>
+              .
+            </p>
+
             <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
               {submitting ? "Creating account…" : "Create Account"}
             </Button>

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { PawIcon } from "./icons";
 import { doctorWhatsAppLink } from "../lib/whatsapp";
 
@@ -48,6 +49,10 @@ export function Footer() {
         </div>
         <div className="mt-12 border-t border-border pt-6 text-sm text-muted">
           © {new Date().getFullYear()} Dr. Nituparna Sarkar. All rights reserved.
+          {" · "}
+          <Link to="/privacy" className="hover:text-ink">
+            Privacy &amp; Terms
+          </Link>
         </div>
       </div>
     </footer>

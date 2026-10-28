@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { Button } from "../components/Button";
@@ -514,6 +514,14 @@ export function Book() {
                 </label>
               </div>
             </section>
+
+            <p className="text-center text-xs text-muted">
+              By continuing you agree to our{" "}
+              <Link to="/privacy" className="underline">
+                Privacy Policy &amp; Terms
+              </Link>
+              .
+            </p>
 
             <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
               {submitting ? "Submitting…" : "Submit consultation request"}
