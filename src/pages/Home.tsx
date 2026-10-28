@@ -59,6 +59,7 @@ const expertiseAreas = [
   "Small & large ruminant diagnosis and treatment",
   "Hospital & field work",
   "Laboratory techniques and interpretations",
+  "Post-mortem of different animals",
 ];
 
 const languages = ["Assamese", "English", "Hindi", "Bengali"];
@@ -85,7 +86,6 @@ const stats = [
 const caseGroups = [
   { title: "Tick-borne & blood parasites", items: ["Babesiosis", "Ehrlichiosis", "Anaplasmosis"] },
   { title: "Infectious disease", items: ["Parvoviral infection", "Canine distemper"] },
-  { title: "Emergency care", items: ["Pyometra", "Intussusception", "Foreign body ingestion"] },
   {
     title: "Internal medicine",
     items: ["Acute & chronic kidney disease", "Toxicity", "Neurological conditions", "Vestibular disease"],
