@@ -13,7 +13,7 @@ const doctor = {
   specialty: "Pet Animal Care · Veterinary Pathology",
   experience: "BVSc & A.H, MVSc (Pursuing)",
   price: "Consultation fee on booking",
-  bio: "Dr. Nituparna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, under Dr. Arup Das ( veterinary surgeon) and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
+  bio: "Dr. Nituparna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, under Dr. Arup Das (veterinary surgeon), and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
 };
 
 const education = [
@@ -25,7 +25,7 @@ const experience = [
   {
     period: "Jan 2026 – Present",
     title: "Assistant Veterinary Doctor",
-    place: "Progressive Pet Clinic, VIP Road, Guwahati (under Dr. Anup Das, Surgeon)",
+    place: "Progressive Pet Clinic, VIP Road, Guwahati (under Dr. Arup Das, Surgeon)",
     points: [
       "Diagnosis, management and treatment of a wide range of clinical cases",
       "Surgical management and post-operative care",
