@@ -82,6 +82,24 @@ def password_matches_fingerprint(password_hash: str | None, fingerprint: str) ->
     return secrets.compare_digest(_password_fingerprint(password_hash), fingerprint)
 
 
+def create_admin_reset_token(password_material: str) -> str:
+    """Single-use in effect: bound to the current admin password, so it dies once the password changes."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.password_reset_expire_minutes)
+    payload = {
+        "purpose": "admin_password_reset",
+        "pwv": admin_password_version(password_material),
+        "exp": expire,
+    }
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+
+
+def is_valid_admin_reset_token(token: str, password_material: str) -> bool:
+    payload = _decode(token)
+    if payload is None or payload.get("purpose") != "admin_password_reset":
+        return False
+    return secrets.compare_digest(str(payload.get("pwv", "")), admin_password_version(password_material))
+
+
 def is_admin_token(token: str, password_material: str) -> bool:
     payload = _decode(token)
     if payload is None or payload.get("role") != "admin":

@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     # Password for the doctor's admin dashboard. Generated and saved to backend/.env on first run if not set.
     admin_password: str = ""
+    # Where the admin "Forgot password?" link is emailed. Without it, no reset link is sent.
+    admin_email: str = ""
     app_base_url: str = "http://localhost:5173"
     # Outgoing email (password reset links). Without SMTP_HOST the reset link is only written to the backend log.
     smtp_host: str = ""

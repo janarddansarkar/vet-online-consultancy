@@ -180,6 +180,17 @@ export async function adminLogin(password: string) {
   localStorage.setItem(ADMIN_TOKEN_KEY, res.access_token);
 }
 
+export function adminForgotPassword() {
+  return request<{ message: string }>("/admin/forgot-password", { method: "POST" });
+}
+
+export function adminResetPassword(token: string, new_password: string) {
+  return request<{ message: string }>("/admin/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, new_password }),
+  });
+}
+
 // Signs out every other admin session; this one keeps working on the fresh token.
 export async function changeAdminPassword(input: { current_password: string; new_password: string }) {
   const res = await request<{ access_token: string }>("/admin/change-password", {

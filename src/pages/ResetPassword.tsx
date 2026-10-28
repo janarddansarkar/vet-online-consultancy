@@ -3,9 +3,11 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { PawIcon } from "../components/icons";
-import { ApiError, resetPassword } from "../lib/api";
+import { ApiError, adminResetPassword, resetPassword } from "../lib/api";
 
-export function ResetPassword() {
+export function ResetPassword({ admin = false }: { admin?: boolean }) {
+  const minLength = admin ? 12 : 8;
+  const loginPath = admin ? "/admin" : "/login";
   const [params] = useSearchParams();
   const token = params.get("token") ?? "";
   const navigate = useNavigate();
@@ -24,9 +26,9 @@ export function ResetPassword() {
     }
     setSubmitting(true);
     try {
-      await resetPassword(token, password);
+      await (admin ? adminResetPassword(token, password) : resetPassword(token, password));
       setDone(true);
-      setTimeout(() => navigate("/login"), 2500);
+      setTimeout(() => navigate(loginPath), 2500);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
     } finally {
@@ -47,7 +49,7 @@ export function ResetPassword() {
               {done
                 ? "Your password has been reset. Taking you to the login page…"
                 : token
-                  ? "Choose a new password for your account."
+                  ? admin ? "Choose a new admin password." : "Choose a new password for your account."
                   : "This reset link is incomplete. Please request a new one."}
             </p>
           </div>
@@ -61,10 +63,10 @@ export function ResetPassword() {
                 label="New password"
                 type="password"
                 name="new-password"
-                placeholder="At least 8 characters"
+                placeholder={`At least ${minLength} characters`}
                 autoComplete="new-password"
                 required
-                minLength={8}
+                minLength={minLength}
                 maxLength={128}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -75,7 +77,7 @@ export function ResetPassword() {
                 name="confirm-password"
                 autoComplete="new-password"
                 required
-                minLength={8}
+                minLength={minLength}
                 maxLength={128}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
@@ -88,11 +90,11 @@ export function ResetPassword() {
 
           <p className="mt-8 text-center text-sm text-muted">
             {!done && !token ? (
-              <Link to="/forgot-password" className="font-semibold text-primary-600 hover:text-primary-700">
-                Request a new link
+              <Link to={admin ? "/admin" : "/forgot-password"} className="font-semibold text-primary-600 hover:text-primary-700">
+                {admin ? "Back to admin login" : "Request a new link"}
               </Link>
             ) : (
-              <Link to="/login" className="font-semibold text-primary-600 hover:text-primary-700">
+              <Link to={loginPath} className="font-semibold text-primary-600 hover:text-primary-700">
                 Back to login
               </Link>
             )}

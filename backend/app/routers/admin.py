@@ -4,24 +4,33 @@ import uuid
 from datetime import date, datetime
 from io import BytesIO
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Request, Response, status
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
+from app.email import send_email
 from app.deps import current_admin_password_material, require_admin
 from app.models import AdminCredential, Appointment, AppointmentStatus, PetGender
 from app.schemas import (
     AdminChangePasswordRequest,
     AdminLoginRequest,
+    AdminResetPasswordRequest,
     AdminTokenResponse,
     AppointmentAdminOut,
     AppointmentOut,
     AppointmentStatusUpdateRequest,
+    MessageResponse,
 )
-from app.security import create_admin_token, hash_password, verify_password
+from app.security import (
+    create_admin_reset_token,
+    create_admin_token,
+    hash_password,
+    is_valid_admin_reset_token,
+    verify_password,
+)
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 # Everything except /login needs the doctor's admin token.
@@ -58,6 +67,53 @@ def _check_admin_password(password: str, request: Request, db: Session) -> str:
 @router.post("/login", response_model=AdminTokenResponse)
 def admin_login(payload: AdminLoginRequest, request: Request, db: Session = Depends(get_db)) -> AdminTokenResponse:
     return AdminTokenResponse(access_token=create_admin_token(_check_admin_password(payload.password, request, db)))
+
+
+# The link goes only to ADMIN_EMAIL, so the endpoint takes no input. A global cap keeps it from flooding that inbox.
+RESET_LINK_MAX_REQUESTS = 3
+RESET_LINK_WINDOW_SECONDS = 900
+_reset_link_requests: list[float] = []
+
+RESET_LINK_RESPONSE = MessageResponse(
+    message="If an admin email is set up for this site, a reset link has been sent to it."
+)
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+def admin_forgot_password(background_tasks: BackgroundTasks, db: Session = Depends(get_db)) -> MessageResponse:
+    now = time.monotonic()
+    _reset_link_requests[:] = [t for t in _reset_link_requests if now - t < RESET_LINK_WINDOW_SECONDS]
+    if len(_reset_link_requests) >= RESET_LINK_MAX_REQUESTS:
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many requests. Try again later.")
+    _reset_link_requests.append(now)
+
+    if settings.admin_email:
+        token = create_admin_reset_token(current_admin_password_material(db))
+        link = f"{settings.app_base_url.rstrip('/')}/admin/reset-password?token={token}"
+        body = (
+            "We got a request to reset the admin dashboard password. Use this link to choose a new one "
+            f"(it expires in {settings.password_reset_expire_minutes} minutes and works once):\n\n{link}\n\n"
+            "If you didn't ask for this, you can ignore this email."
+        )
+        background_tasks.add_task(send_email, settings.admin_email, "Reset the admin password", body)
+    return RESET_LINK_RESPONSE
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+def admin_reset_password(payload: AdminResetPasswordRequest, db: Session = Depends(get_db)) -> MessageResponse:
+    """Sets a new admin password from an emailed link. Signs out every admin session."""
+    if not is_valid_admin_reset_token(payload.token, current_admin_password_material(db)):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This reset link is invalid or has expired.")
+
+    new_hash = hash_password(payload.new_password)
+    credential = db.get(AdminCredential, 1)
+    if credential is None:
+        db.add(AdminCredential(id=1, password_hash=new_hash))
+    else:
+        credential.password_hash = new_hash
+    db.commit()
+    _failed_logins.clear()
+    return MessageResponse(message="The admin password has been reset. You can log in now.")
 
 
 @protected.post("/change-password", response_model=AdminTokenResponse)

@@ -66,6 +66,11 @@ class AdminChangePasswordRequest(BaseModel):
     new_password: str = Field(min_length=12, max_length=200)
 
 
+class AdminResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=1, max_length=2000)
+    new_password: str = Field(min_length=12, max_length=200)
+
+
 class AdminTokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

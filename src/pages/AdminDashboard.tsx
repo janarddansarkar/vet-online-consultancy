@@ -50,10 +50,23 @@ function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function handleForgot() {
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await api.adminForgotPassword();
+      setNotice(res.message);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setNotice(null);
     setSubmitting(true);
     try {
       await api.adminLogin(password);
@@ -79,15 +92,23 @@ function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
             {error && <p className="rounded-lg bg-danger-50 px-4 py-3 text-sm font-medium text-danger-600">{error}</p>}
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            {notice && <p className="rounded-lg bg-primary-50 px-4 py-3 text-sm font-medium text-primary-700">{notice}</p>}
+            <div className="flex flex-col gap-2">
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div className="flex justify-end">
+                <button type="button" onClick={handleForgot} className="text-sm font-medium text-primary-600 hover:text-primary-700">
+                  Forgot password?
+                </button>
+              </div>
+            </div>
             <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
               {submitting ? "Logging in…" : "Login"}
             </Button>
