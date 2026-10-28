@@ -89,16 +89,12 @@ const caseGroups = [
   { title: "Tick-borne & blood parasites", items: ["Babesiosis", "Ehrlichiosis", "Anaplasmosis"] },
   { title: "Infectious disease", items: ["Parvoviral infection", "Canine distemper"] },
   {
-    title: "Surgical & emergency",
-    items: ["C-section", "Spaying", "Castration", "Pyometra", "Intussusception", "Foreign body ingestion"],
-  },
-  {
     title: "Internal medicine",
     items: ["Acute & chronic kidney disease", "Toxicity", "Neurological conditions", "Vestibular disease"],
   },
   {
     title: "Skin, parasites & tumours",
-    items: ["Ectoparasite infestation", "Endoparasite infestation", "Papillomatosis", "Tumours"],
+    items: ["Ectoparasite infestation", "Endoparasite infestation", "Fungal infections", "Papillomatosis", "Tumours"],
   },
 ];
 
