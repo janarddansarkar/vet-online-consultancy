@@ -88,7 +88,7 @@ const caseGroups = [
   { title: "Infectious disease", items: ["Parvoviral infection", "Canine distemper"] },
   {
     title: "Internal medicine",
-    items: ["Acute & chronic kidney disease", "Toxicity", "Neurological conditions", "Vestibular disease"],
+    items: ["Acute & chronic kidney disease", "Toxicity", "Neurological conditions", "Vestibular disease", "Emergency care"],
   },
   {
     title: "Skin, parasites & tumours",
