@@ -89,6 +89,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new ApiError(typeof message === "string" ? message : "Something went wrong. Please try again.", res.status);
   }
 
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -154,6 +155,10 @@ export function createAppointment(token: string, input: AppointmentInput) {
     headers: authHeaders(token),
     body: JSON.stringify(input),
   });
+}
+
+export function deleteMyAppointment(token: string, appointmentId: string) {
+  return request<void>(`/appointments/${appointmentId}`, { method: "DELETE", headers: authHeaders(token) });
 }
 
 export function listMyAppointments(token: string) {

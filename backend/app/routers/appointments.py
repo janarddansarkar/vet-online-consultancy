@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 
@@ -29,6 +31,28 @@ def list_my_appointments(
         .order_by(Appointment.created_at.desc())
         .all()
     )
+
+
+@router.delete("/{appointment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_my_appointment(
+    appointment_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    """Lets an owner withdraw their own booking while it is still Booked. Completed ones stay as a record."""
+    appointment = db.get(Appointment, appointment_id)
+    if appointment is None or appointment.pet.owner_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Booking not found")
+    if appointment.status != AppointmentStatus.BOOKED:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only a booking that is still Booked can be deleted")
+
+    pet = appointment.pet
+    db.delete(appointment)
+    db.flush()
+    # Pets are created for a booking, so the pet goes with it unless it still has another one.
+    if not db.query(Appointment).filter(Appointment.pet_id == pet.id).count():
+        db.delete(pet)
+    db.commit()
 
 
 @router.post("", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)

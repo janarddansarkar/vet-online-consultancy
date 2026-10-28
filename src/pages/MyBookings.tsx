@@ -24,6 +24,8 @@ export function MyBookings() {
   const { user, loading } = useAuth();
   const [appointments, setAppointments] = useState<api.Appointment[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = api.getToken();
@@ -33,6 +35,22 @@ export function MyBookings() {
       .then(setAppointments)
       .catch((err) => setError(err instanceof ApiError ? err.message : "Couldn't load your bookings."));
   }, [user]);
+
+  async function handleDelete(appointmentId: string) {
+    const token = api.getToken();
+    if (!token) return;
+    setError(null);
+    setDeletingId(appointmentId);
+    try {
+      await api.deleteMyAppointment(token, appointmentId);
+      setAppointments((prev) => prev?.filter((a) => a.id !== appointmentId) ?? null);
+      setConfirmingId(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Couldn't delete the booking. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
@@ -48,7 +66,7 @@ export function MyBookings() {
             </span>
             <div>
               <h1 className="text-2xl font-bold text-ink">My bookings</h1>
-              <p className="text-sm text-muted">Dr. Sarkar marks a booking as completed after your consultation.</p>
+              <p className="text-sm text-muted">Dr. Nituporna marks a booking as completed after your consultation. Changed your mind? You can delete a booking until then.</p>
             </div>
             <Button variant="primary" href="/book" className="ml-auto">
               Book a consultation
@@ -93,6 +111,26 @@ export function MyBookings() {
                     <span className="font-semibold text-ink">Main problem:</span> {appointment.symptoms}
                   </p>
                 )}
+                {appointment.status === "BOOKED" &&
+                  (confirmingId === appointment.id ? (
+                    <div className="mt-4 flex flex-col gap-3 rounded-xl bg-bg p-4 sm:flex-row sm:items-center">
+                      <p className="flex-1 text-sm font-medium text-ink">Delete this booking? This can't be undone.</p>
+                      <div className="flex gap-2">
+                        <Button variant="danger" disabled={deletingId === appointment.id} onClick={() => handleDelete(appointment.id)}>
+                          {deletingId === appointment.id ? "Deleting…" : "Yes, delete"}
+                        </Button>
+                        <Button variant="text" onClick={() => setConfirmingId(null)}>
+                          Keep it
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <Button variant="danger" onClick={() => setConfirmingId(appointment.id)}>
+                        Delete booking
+                      </Button>
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
