@@ -52,7 +52,7 @@ export function Login() {
             </Link>
             <h1 className="mt-5 text-2xl font-bold text-ink">Welcome Back</h1>
             <p className="mt-2 text-sm text-muted">
-              Log in to manage your pets and appointments with Dr. Nituparna Sarkar.
+              Log in to manage your pets and appointments with Dr. Nituporna Sarkar.
             </p>
           </div>
 

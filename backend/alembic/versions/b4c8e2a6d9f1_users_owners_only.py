@@ -40,7 +40,7 @@ def downgrade() -> None:
     op.create_index(op.f('ix_users_role'), 'users', ['role'], unique=False)
     op.execute("""
         INSERT INTO users (id, email, full_name, role, is_active)
-        VALUES (gen_random_uuid(), 'doctor@example.com', 'Dr. Nituparna Sarkar', 'ADMIN', true)
+        VALUES (gen_random_uuid(), 'doctor@example.com', 'Dr. Nituporna Sarkar', 'ADMIN', true)
     """)
     op.add_column('appointments', sa.Column('cancelled_by_user_id', sa.UUID(), nullable=True))
     op.create_foreign_key(

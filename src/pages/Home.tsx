@@ -9,11 +9,11 @@ import heroImage from "../assets/images/nitu_profile1.webp";
 import aboutImage from "../assets/images/nitu_profile2.webp";
 
 const doctor = {
-  name: "Dr. Nituparna Sarkar",
+  name: "Dr. Nituporna Sarkar",
   specialty: "Pet Animal Care · Veterinary Pathology",
   experience: "BVSc & A.H, MVSc (Pursuing)",
   price: "Consultation fee on booking",
-  bio: "Dr. Nituparna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, under Dr. Arup Das (veterinary surgeon), and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
+  bio: "Dr. Nituporna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, under Dr. Arup Das (veterinary surgeon), and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
 };
 
 const education = [
@@ -116,7 +116,7 @@ export function Home() {
         <section className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:px-20">
           <div className="animate-fade-up">
             <h1 className="text-4xl font-bold leading-tight text-ink lg:text-5xl">
-              See Dr. Nituparna Sarkar online, whenever your pet needs care.
+              See Dr. Nituporna Sarkar online, whenever your pet needs care.
             </h1>
             <p className="mt-6 text-lg text-body">
               Book a video, audio, or chat consultation with Dr. Sarkar in minutes. Get
@@ -145,7 +145,7 @@ export function Home() {
           <div className="animate-fade-up h-80 overflow-hidden rounded-3xl bg-gradient-to-br from-primary-100 to-primary-50 [animation-delay:150ms] lg:h-96">
             <img
               src={heroImage}
-              alt="Dr. Nituparna Sarkar examining a dog"
+              alt="Dr. Nituporna Sarkar examining a dog"
               className="h-full w-full object-cover object-top"
             />
           </div>
@@ -158,7 +158,7 @@ export function Home() {
               <div className="mx-auto h-72 w-56 overflow-hidden rounded-3xl bg-gradient-to-br from-primary-100 to-primary-50 lg:mx-0">
                 <img
                   src={aboutImage}
-                  alt="Dr. Nituparna Sarkar in scrubs"
+                  alt="Dr. Nituporna Sarkar in scrubs"
                   className="h-full w-full object-cover object-top"
                 />
               </div>

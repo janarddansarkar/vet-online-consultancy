@@ -20,7 +20,7 @@ const sections = [
   {
     title: "Who can see it",
     body: [
-      "Dr. Nituparna Sarkar and the administrator of this site. Data is stored on our own server. We use Google only for sign-in and an email provider only to deliver password-reset emails.",
+      "Dr. Nituporna Sarkar and the administrator of this site. Data is stored on our own server. We use Google only for sign-in and an email provider only to deliver password-reset emails.",
     ],
   },
   {

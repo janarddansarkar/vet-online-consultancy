@@ -22,7 +22,7 @@ export function Footer() {
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white">
                 <PawIcon className="h-5 w-5" />
               </span>
-              Dr. Nituparna Sarkar
+              Dr. Nituporna Sarkar
             </div>
             <p className="mt-4 text-sm text-muted">
               Trusted online veterinary consultations, whenever your pet needs care.
@@ -48,7 +48,7 @@ export function Footer() {
           ))}
         </div>
         <div className="mt-12 border-t border-border pt-6 text-sm text-muted">
-          © {new Date().getFullYear()} Dr. Nituparna Sarkar. All rights reserved.
+          © {new Date().getFullYear()} Dr. Nituporna Sarkar. All rights reserved.
           {" · "}
           <Link to="/privacy" className="hover:text-ink">
             Privacy &amp; Terms

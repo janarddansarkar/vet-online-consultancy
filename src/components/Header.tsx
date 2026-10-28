@@ -32,7 +32,7 @@ export function Header() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white">
             <PawIcon className="h-5 w-5" />
           </span>
-          Dr. Nituparna Sarkar
+          Dr. Nituporna Sarkar
         </Link>
 
         <nav className="hidden items-center gap-8 lg:flex">

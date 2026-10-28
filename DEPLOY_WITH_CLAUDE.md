@@ -115,7 +115,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USERNAME=nitupornasarkar2000@gmail.com
 SMTP_PASSWORD=<SMTP app password, no spaces>
-SMTP_FROM=Dr. Nituparna Sarkar <nitupornasarkar2000@gmail.com>
+SMTP_FROM=Dr. Nituporna Sarkar <nitupornasarkar2000@gmail.com>
 GOOGLE_CLIENT_ID=<client id or empty>
 EOF
 chmod 600 .env

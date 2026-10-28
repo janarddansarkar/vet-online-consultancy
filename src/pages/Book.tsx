@@ -169,7 +169,7 @@ export function Book() {
             <CheckCircleIcon className="mx-auto h-12 w-12 text-primary-600" />
             <h1 className="mt-5 text-2xl font-bold text-ink">Consultation request sent</h1>
             <p className="mt-2 text-sm text-muted">
-              We've booked {confirmed.pet.name ? `${confirmed.pet.name}'s` : "your pet's"} consultation request. Dr. Nituparna Sarkar will contact you
+              We've booked {confirmed.pet.name ? `${confirmed.pet.name}'s` : "your pet's"} consultation request. Dr. Nituporna Sarkar will contact you
               on WhatsApp at {confirmed.contact_phone} to arrange the consultation.
             </p>
             <div className="mt-6 rounded-xl bg-bg p-5 text-left text-sm">
@@ -231,7 +231,7 @@ export function Book() {
             </span>
             <div>
               <h1 className="text-2xl font-bold text-ink">Book a consultation</h1>
-              <p className="text-sm text-muted">with Dr. Nituparna Sarkar</p>
+              <p className="text-sm text-muted">with Dr. Nituporna Sarkar</p>
             </div>
           </div>
 

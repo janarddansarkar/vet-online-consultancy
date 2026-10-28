@@ -53,7 +53,7 @@ export function Register() {
           </div>
           <h2 className="text-2xl font-bold text-ink">Care for your pet, from anywhere</h2>
           <p className="text-sm text-muted">
-            Create an account to book video, audio, or chat consultations with Dr. Nituparna Sarkar and keep your
+            Create an account to book video, audio, or chat consultations with Dr. Nituporna Sarkar and keep your
             pet's medical history in one place.
           </p>
         </div>
@@ -67,7 +67,7 @@ export function Register() {
             </Link>
             <h1 className="mt-5 text-2xl font-bold text-ink lg:mt-0">Create your account</h1>
             <p className="mt-2 text-sm text-muted">
-              Sign up to manage your pets and book consultations with Dr. Nituparna Sarkar.
+              Sign up to manage your pets and book consultations with Dr. Nituporna Sarkar.
             </p>
           </div>
 
