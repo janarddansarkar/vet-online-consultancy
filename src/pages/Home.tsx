@@ -96,9 +96,7 @@ const caseGroups = [
 ];
 
 const postMortems = [
-  { value: "8+", label: "Wild elephants" },
-  { value: "1", label: "Sambar (wild)" },
-  { value: "1", label: "Pygmy hog (Central Zoo)" },
+  { value: "15+", label: "Wild animals (elephants, Sambar deer, Pygmy hog etc.)" },
   { value: "20+", label: "Pet animals (Veterinary Pathology dept.)" },
   { value: "5+", label: "Large ruminants" },
 ];
@@ -294,7 +292,7 @@ export function Home() {
 
             <Reveal className="mt-12">
               <h3 className="text-lg font-semibold text-ink">Post-mortem experience</h3>
-              <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-5">
+              <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-3">
                 {postMortems.map((item) => (
                   <div key={item.label} className="rounded-2xl border border-border bg-white p-5 text-center">
                     <div className="text-2xl font-bold text-ink">{item.value}</div>
