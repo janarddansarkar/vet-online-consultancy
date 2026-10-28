@@ -10,7 +10,7 @@ You are deploying this app to a fresh VPS at **https://drnituporna.com** using D
 | Images | `janarddan/vet-backend:prod` and `janarddan/vet-web:prod` on Docker Hub (built for linux/amd64 and linux/arm64) |
 | Stack | 4 containers from `deploy/docker/docker-compose.yml`: `db` (PostgreSQL 16), `backend` (FastAPI), `web` (Nginx + built site), `caddy` (HTTPS, Let's Encrypt certificates issued automatically) |
 | Database | Created automatically on first start (Postgres creates the empty DB, the backend runs migrations). Data lives in the Docker volume `vet_db_data`. **No manual SQL or schema setup is needed.** |
-| Files needed on the server | `deploy/docker/docker-compose.yml`, `Caddyfile`, `.env.example`, `backup-db.sh` (in this repo, branch `prod`) |
+| Files needed on the server | Only four: `docker-compose.yml`, `Caddyfile`, `.env.example`, `backup-db.sh` (downloaded from `deploy/docker/` on branch `prod`). No source code on the VPS. |
 | Server folder | `/opt/vet` |
 
 Do **not** use `deploy/prod/`, `deploy/nginx.conf`, `deploy/vet-backend.service` or the "without Docker" section of `README.md`. Those are an older, non-Docker setup.
@@ -21,6 +21,7 @@ Do **not** use `deploy/prod/`, `deploy/nginx.conf`, `deploy/vet-backend.service`
 - **Never run** `docker compose down -v`, `docker volume rm`, `docker system prune --volumes`, or anything else that deletes the `vet_db_data` volume, unless the user explicitly asks for a full wipe.
 - **Never kill a process or remove another site's config** that you find on ports 80/443. Show the user what is there and ask.
 - Do not change SSH settings or disable password login unless the user asks. Always allow SSH in the firewall *before* enabling it.
+- **Do not clone the repo or put the application source code on the VPS.** Only the four files in Step 5 belong in `/opt/vet`; the code runs from the Docker Hub images.
 - Report real results. If a check fails, say so with the output; do not claim success.
 
 ## Step 0. Collect what you need from the user
@@ -81,20 +82,17 @@ If `ufw` is not installed, `apt-get install -y ufw` first. Do not open port 5432
 
 ## Step 5. Put the deployment files on the server
 
-Create `/opt/vet` and get the four files into it.
+The server needs only these four small files. **Do not clone the repository or copy any source code to the VPS**: the application code is inside the Docker images. Download them directly from GitHub (the repo is public):
 
-- **Working from the laptop** (repo checked out on branch `prod`): 
-  ```bash
-  ssh user@IP 'mkdir -p /opt/vet'
-  scp deploy/docker/docker-compose.yml deploy/docker/Caddyfile deploy/docker/.env.example deploy/docker/backup-db.sh user@IP:/opt/vet/
-  ```
-- **Working on the VPS**: clone the repo's `prod` branch to a temporary folder and copy the files (the repo is `https://github.com/janarddansarkar/vet-online-consultancy`; if it is private, ask the user for access, e.g. a GitHub token or deploy key):
-  ```bash
-  git clone --depth 1 --branch prod https://github.com/janarddansarkar/vet-online-consultancy /tmp/vet-src
-  mkdir -p /opt/vet && cp /tmp/vet-src/deploy/docker/{docker-compose.yml,Caddyfile,.env.example,backup-db.sh} /opt/vet/ && rm -rf /tmp/vet-src
-  ```
+```bash
+mkdir -p /opt/vet && cd /opt/vet
+BASE=https://raw.githubusercontent.com/janarddansarkar/vet-online-consultancy/prod/deploy/docker
+for f in docker-compose.yml Caddyfile .env.example backup-db.sh; do curl -fsSL -o "$f" "$BASE/$f"; done
+chmod +x backup-db.sh
+ls -la /opt/vet                      # expect exactly those 4 files (plus .env after Step 6)
+```
 
-Then `chmod +x /opt/vet/backup-db.sh`.
+If the download fails (for example the repo became private), copy the four files from `deploy/docker/` on the user's laptop instead: `scp deploy/docker/{docker-compose.yml,Caddyfile,.env.example,backup-db.sh} user@IP:/opt/vet/`.
 
 ## Step 6. Create `/opt/vet/.env`
 
