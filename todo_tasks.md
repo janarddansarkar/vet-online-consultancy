@@ -9,7 +9,7 @@ Deployment guide: "Deploying to a VPS" in `README.md`; config templates in `depl
 - [ ] **Fix the Gmail app password for reset emails.** Gmail still rejects the login (`535 Username and Password not accepted`); the values in `backend/.env` are correctly formatted, so the app password is the likely problem.
   - [ ] Confirm 2-Step Verification is on for `drsarkar.vet@gmail.com`, create a fresh app password at myaccount.google.com/apppasswords (16 letters, no spaces), put it in `backend/.env`, restart, test `/forgot-password`.
   - [ ] Or use Brevo/Resend/SES for better delivery than Gmail (needs a verified sending domain).
-- [ ] **Confirm public claims with Dr. Sarkar.** The home page says "100+ clinical cases managed" and "fewer than 10 mortalities"; her CV (`details.docx`) says 200+, so check the lower figure is intended.
+- [x] **Confirm public claims with Dr. Sarkar.** The home page says "100+ clinical cases managed" and "fewer than 10 mortalities"; her CV (`details.docx`) says 200+, so check the lower figure is intended.
 - [x] **Add a privacy policy / terms page** (footer + booking and register forms; draft at `/privacy`, have it reviewed). The site collects phone numbers, addresses and pet medical details (India's DPDP Act 2023).
 - [ ] **Decide the open questions below** (they change page text).
 
@@ -46,4 +46,3 @@ Deployment guide: "Deploying to a VPS" in `README.md`; config templates in `depl
 ## Open questions
 
 - [ ] MVSc college wording: currently "College of Veterinary Science, AVFU, Khanapara" (BVSc says AAU). Add "(under AAU)" if wanted.
-- [ ] The deletion of `Veterinary_Online_Consultation_Figma_Wireframe_Specification.pdf` is still uncommitted: commit it or `git restore` it.
