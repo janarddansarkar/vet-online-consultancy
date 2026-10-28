@@ -27,9 +27,8 @@ const experience = [
     title: "Assistant Veterinary Doctor",
     place: "Progressive Pet Clinic, VIP Road, Guwahati (under Dr. Arup Das, Surgeon)",
     points: [
-      "Diagnosis, management and treatment of a wide range of clinical cases",
-      "Surgical management and post-operative care",
-      "Laboratory testing and interpretation of findings across a variety of conditions",
+      "Diagnosis, management & treatment of a wide range of clinical cases",
+      "Laboratory tests, techniques and interpretation of different conditions",
     ],
   },
   {
@@ -59,8 +58,7 @@ const expertiseAreas = [
   "Pet animal care (Dog & Cat)",
   "Small & large ruminant diagnosis and treatment",
   "Hospital & field work",
-  "Laboratory techniques",
-  "Post-mortem of domestic & wild animals",
+  "Laboratory techniques and interpretations",
 ];
 
 const languages = ["Assamese", "English", "Hindi", "Bengali"];
@@ -71,7 +69,6 @@ const skills = [
   "Emergency care",
   "Post-mortem (domestic & wild)",
   "Animal handling & restraint",
-  "General surgical procedures",
   "Client communication",
   "Animal nutrition",
   "Team leadership",
