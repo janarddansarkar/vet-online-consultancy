@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.capacity import ensure_booking_capacity
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import (
@@ -19,6 +20,7 @@ def create_appointment(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Appointment:
+    ensure_booking_capacity(db)
     pet = db.get(Pet, payload.pet_id)
     if pet is None or pet.owner_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pet not found")

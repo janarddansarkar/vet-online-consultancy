@@ -9,11 +9,12 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 from sqlalchemy.orm import Session
 
+from app.capacity import appointment_count
 from app.config import settings
 from app.database import get_db
 from app.email import send_email
 from app.deps import current_admin_password_material, require_admin
-from app.models import AdminCredential, Appointment, AppointmentStatus, PetGender
+from app.models import AdminCredential, Appointment, AppointmentStatus, Pet, PetGender
 from app.schemas import (
     AdminChangePasswordRequest,
     AdminLoginRequest,
@@ -22,6 +23,7 @@ from app.schemas import (
     AppointmentAdminOut,
     AppointmentOut,
     AppointmentStatusUpdateRequest,
+    CapacityOut,
     MessageResponse,
 )
 from app.security import (
@@ -256,6 +258,21 @@ def update_appointment_status(
     db.commit()
     db.refresh(appointment)
     return _to_admin_out(appointment)
+
+
+@protected.get("/capacity", response_model=CapacityOut)
+def get_capacity(db: Session = Depends(get_db)) -> CapacityOut:
+    return CapacityOut(total=appointment_count(db), limit=settings.max_appointments)
+
+
+@protected.post("/reset-data", response_model=CapacityOut)
+def reset_consultation_data(db: Session = Depends(get_db)) -> CapacityOut:
+    """Deletes every consultation request and pet record to free up space. Owner accounts are kept.
+    The dashboard downloads the Excel export first; this only removes the data."""
+    db.query(Appointment).delete()
+    db.query(Pet).delete()
+    db.commit()
+    return CapacityOut(total=0, limit=settings.max_appointments)
 
 
 router.include_router(protected)

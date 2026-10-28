@@ -71,6 +71,11 @@ class AdminResetPasswordRequest(BaseModel):
     new_password: str = Field(min_length=12, max_length=200)
 
 
+class CapacityOut(BaseModel):
+    total: int
+    limit: int
+
+
 class AdminTokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

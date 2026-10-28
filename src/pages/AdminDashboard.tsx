@@ -180,6 +180,30 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [capacity, setCapacity] = useState<{ total: number; limit: number } | null>(null);
+  const [resetting, setResetting] = useState(false);
+
+  function loadCapacity() {
+    api.getAdminCapacity().then(setCapacity).catch(() => setCapacity(null));
+  }
+
+  // Saves the Excel file first; only after that succeeds does it delete anything.
+  async function handleDownloadAndReset() {
+    if (!window.confirm("This downloads all entries as an Excel file and then permanently deletes them from the site. Continue?")) return;
+    setActionError(null);
+    setResetting(true);
+    try {
+      await api.downloadAppointmentsExport();
+      setCapacity(await api.resetAdminData());
+      loadAppointments();
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) return onSessionExpired();
+      setActionError("Couldn't download and reset. Nothing was deleted unless the file saved; please check and try again.");
+      loadCapacity();
+    } finally {
+      setResetting(false);
+    }
+  }
 
   function loadAppointments() {
     setListLoading(true);
@@ -193,6 +217,10 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
       })
       .finally(() => setListLoading(false));
   }
+
+  useEffect(() => {
+    loadCapacity();
+  }, []);
 
   useEffect(() => {
     loadAppointments();
@@ -258,6 +286,29 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
               </button>
             </div>
           </div>
+
+          {capacity && capacity.total >= capacity.limit ? (
+            <div className="mt-6 rounded-2xl border border-danger-600/40 bg-danger-50 p-5">
+              <p className="text-sm font-semibold text-danger-600">
+                Storage full: {capacity.total} of {capacity.limit} entries. No more than {capacity.limit} entries can be
+                saved, so new bookings are paused.
+              </p>
+              <p className="mt-1 text-sm text-body">
+                Download everything as Excel and reset to accept new bookings. Owner accounts are kept; all consultation
+                entries are deleted.
+              </p>
+              <Button type="button" variant="danger" className="mt-4" onClick={handleDownloadAndReset} disabled={resetting}>
+                {resetting ? "Working…" : "Download Excel & reset"}
+              </Button>
+            </div>
+          ) : (
+            capacity && (
+              <p className="mt-4 text-sm text-muted">
+                {capacity.total} of {capacity.limit} entries used
+                {capacity.total >= capacity.limit * 0.9 ? " — almost full. Download Excel from the buttons above soon." : ""}
+              </p>
+            )
+          )}
 
           {changingPassword && (
             <ChangePasswordForm onDone={() => setChangingPassword(false)} onSessionExpired={onSessionExpired} />

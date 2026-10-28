@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     admin_password: str = ""
     # Where the admin "Forgot password?" link is emailed. Without it, no reset link is sent.
     admin_email: str = ""
+    # The VPS is small, so the site stops taking bookings at this many entries until the admin downloads them and resets.
+    max_appointments: int = 100
     app_base_url: str = "http://localhost:5173"
     # Outgoing email (password reset links). Without SMTP_HOST the reset link is only written to the backend log.
     smtp_host: str = ""

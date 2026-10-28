@@ -201,6 +201,15 @@ export async function changeAdminPassword(input: { current_password: string; new
   localStorage.setItem(ADMIN_TOKEN_KEY, res.access_token);
 }
 
+export function getAdminCapacity() {
+  return request<{ total: number; limit: number }>("/admin/capacity", { headers: adminHeaders() });
+}
+
+// Deletes all consultation requests and pet records (owner accounts stay). Download the Excel file first.
+export function resetAdminData() {
+  return request<{ total: number; limit: number }>("/admin/reset-data", { method: "POST", headers: adminHeaders() });
+}
+
 export function listAdminAppointments(status?: AppointmentStatus) {
   const qs = status ? `?status=${status}` : "";
   return request<AppointmentAdmin[]>(`/admin/appointments${qs}`, { headers: adminHeaders() });
