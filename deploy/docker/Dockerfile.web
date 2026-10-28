@@ -1,0 +1,19 @@
+# Built frontend served by Nginx, which also proxies /api to the backend container.
+# Build from the project root. The VITE_* values are baked into the files at build time:
+#   docker build -f deploy/docker/Dockerfile.web -t vet-web \
+#     --build-arg VITE_SITE_URL=https://drnituporna.com --build-arg VITE_DOCTOR_WHATSAPP=91XXXXXXXXXX .
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+ARG VITE_SITE_URL
+ARG VITE_DOCTOR_WHATSAPP
+ARG VITE_GOOGLE_CLIENT_ID
+ENV VITE_SITE_URL=$VITE_SITE_URL VITE_DOCTOR_WHATSAPP=$VITE_DOCTOR_WHATSAPP VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
+RUN npm run build
+
+FROM nginx:1.27-alpine
+COPY deploy/docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80

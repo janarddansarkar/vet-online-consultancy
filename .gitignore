@@ -35,3 +35,6 @@ db/
 
 # Playwright CLI artifacts
 .playwright-cli/
+
+# Docker deploy settings (secrets)
+deploy/docker/.env

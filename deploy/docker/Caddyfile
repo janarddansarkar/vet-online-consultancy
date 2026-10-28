@@ -1,0 +1,10 @@
+# Caddy gets and renews the HTTPS certificates automatically (Let's Encrypt) and forwards to the web container.
+# DNS A records for the domain and www must point at this server before the first start.
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
+
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy web:80
+}

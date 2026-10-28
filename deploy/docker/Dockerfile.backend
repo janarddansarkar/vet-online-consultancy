@@ -1,0 +1,19 @@
+# FastAPI backend. Build from the project root:  docker build -f deploy/docker/Dockerfile.backend -t vet-backend .
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1
+WORKDIR /app/backend
+
+COPY backend/requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY backend/ .
+
+RUN useradd --system --no-create-home vet && chown -R vet /app
+USER vet
+
+EXPOSE 8000
+# One process only: migrations run at startup and the login rate limits are kept in memory.
+# The backend isn't published to the internet (only the web container can reach it), so trusting
+# X-Forwarded-For from any source is safe and gives the real visitor IP to the login lockouts.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

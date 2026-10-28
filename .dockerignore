@@ -1,0 +1,12 @@
+.git
+.claude
+node_modules
+dist
+db
+backend/.venv
+backend/.env
+**/__pycache__
+**/*.pyc
+.env.local
+*.log
+details.docx
