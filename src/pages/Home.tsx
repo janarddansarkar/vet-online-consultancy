@@ -27,9 +27,9 @@ const experience = [
     title: "Assistant Veterinary Doctor",
     place: "Progressive Pet Clinic, VIP Road, Guwahati (with Dr. Arup Das, Surgeon)",
     points: [
-      "Diagnosis, management & treatment of a wide range of clinical cases",
+      "Diagnosis, management and treatment of a wide range of clinical cases",
       "Surgical management and post-operative care",
-      "Laboratory tests, techniques and interpretation of different conditions",
+      "Laboratory testing and interpretation of findings across a variety of conditions",
     ],
   },
   {
@@ -37,9 +37,9 @@ const experience = [
     title: "Postgraduate Student, Veterinary Pathology",
     place: "College of Veterinary Science, AVFU, Khanapara",
     points: [
-      "Post-mortem of large and small animals to investigate cause of death",
+      "Post-mortem examination of large and small animals to determine the cause of death",
       "Post-mortem and field work with wildlife and domestic animals",
-      "Hands-on laboratory techniques; sample collection, preservation and disposal",
+      "Hands-on laboratory techniques, including interpretation of results, sample collection, preservation and disposal",
     ],
   },
   {
