@@ -85,7 +85,7 @@ const stats = [
 const caseGroups = [
   { title: "Tick-borne & blood parasites", items: ["Babesiosis", "Ehrlichiosis", "Anaplasmosis"] },
   { title: "Infectious disease", items: ["Parvoviral infection", "Canine distemper"] },
-  { title: "Emergency", items: ["Pyometra", "Intussusception", "Foreign body ingestion"] },
+  { title: "Emergency care", items: ["Pyometra", "Intussusception", "Foreign body ingestion"] },
   {
     title: "Internal medicine",
     items: ["Acute & chronic kidney disease", "Toxicity", "Neurological conditions", "Vestibular disease"],
