@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -24,9 +25,16 @@ def create_access_token(subject: str) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def create_admin_token() -> str:
+def admin_password_version(password_material: str) -> str:
+    """Keyed fingerprint of the current admin password (its stored hash, or the .env password before the first
+    change). Admin tokens embed it, so changing the password signs out every other session. Keyed so the token
+    can't be used to guess a weak password offline."""
+    return hmac.new(settings.jwt_secret.encode(), password_material.encode(), hashlib.sha256).hexdigest()[:16]
+
+
+def create_admin_token(password_material: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.admin_token_expire_minutes)
-    payload = {"sub": "admin", "role": "admin", "exp": expire}
+    payload = {"sub": "admin", "role": "admin", "pwv": admin_password_version(password_material), "exp": expire}
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
@@ -74,6 +82,8 @@ def password_matches_fingerprint(password_hash: str | None, fingerprint: str) ->
     return secrets.compare_digest(_password_fingerprint(password_hash), fingerprint)
 
 
-def is_admin_token(token: str) -> bool:
+def is_admin_token(token: str, password_material: str) -> bool:
     payload = _decode(token)
-    return payload is not None and payload.get("role") == "admin"
+    if payload is None or payload.get("role") != "admin":
+        return False
+    return secrets.compare_digest(str(payload.get("pwv", "")), admin_password_version(password_material))

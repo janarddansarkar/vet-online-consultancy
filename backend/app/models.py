@@ -7,6 +7,7 @@ from sqlalchemy import (
     Date,
     DateTime,
     ForeignKey,
+    Integer,
     Numeric,
     String,
     Text,
@@ -110,3 +111,16 @@ class Appointment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
 
     pet: Mapped["Pet"] = relationship(back_populates="appointments", foreign_keys=[pet_id])
+
+
+# ---------------------------------------------------------------------------
+# Admin credential (single row: the doctor's dashboard password, once changed from the .env default)
+# ---------------------------------------------------------------------------
+
+
+class AdminCredential(Base):
+    __tablename__ = "admin_credentials"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

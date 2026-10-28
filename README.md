@@ -27,6 +27,8 @@ Runs at http://localhost:5173 (admin dashboard at http://localhost:5173/admin)
 
 The admin dashboard asks for a password. On first run the backend generates one, saves it as `ADMIN_PASSWORD` in `backend/.env` and prints it once in the backend console. Set `ADMIN_PASSWORD` yourself in production.
 
+Once Dr. Sarkar uses **Change password** in the dashboard (at least 12 characters), the new password is stored hashed in the database and `ADMIN_PASSWORD` in `.env` is ignored from then on. Changing it signs out other admin sessions. If the new password is forgotten, clear it and the `.env` value works again: `psql <database> -c "DELETE FROM admin_credentials;"`.
+
 
 Password reset emails need SMTP settings in `backend/.env` (see `backend/.env.example`). Without them, the reset link is printed in the backend console instead of emailed.
 

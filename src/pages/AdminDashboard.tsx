@@ -99,6 +99,57 @@ function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
   );
 }
 
+function ChangePasswordForm({ onDone, onSessionExpired }: { onDone: () => void; onSessionExpired: () => void }) {
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (next !== confirm) return setError("The new passwords don't match.");
+    setSubmitting(true);
+    try {
+      await api.changeAdminPassword({ current_password: current, new_password: next });
+      setSaved(true);
+      setCurrent("");
+      setNext("");
+      setConfirm("");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401 && err.message !== "Incorrect password") return onSessionExpired();
+      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-white p-6">
+      <h2 className="text-lg font-bold text-ink">Change admin password</h2>
+      <Input label="Current password" type="password" autoComplete="current-password" required value={current} onChange={(e) => setCurrent(e.target.value)} />
+      <Input label="New password (at least 12 characters)" id="new-password" type="password" autoComplete="new-password" minLength={12} required value={next} onChange={(e) => setNext(e.target.value)} />
+      <Input label="Confirm new password" id="confirm-password" type="password" autoComplete="new-password" minLength={12} required value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+      {error && <p className="rounded-lg bg-danger-50 px-4 py-3 text-sm font-medium text-danger-600">{error}</p>}
+      {saved && (
+        <p className="rounded-lg bg-primary-50 px-4 py-3 text-sm font-medium text-primary-700">
+          Password changed. Any other signed-in admin sessions have been logged out.
+        </p>
+      )}
+      <div className="flex gap-3">
+        <Button type="submit" variant="primary" disabled={submitting}>
+          {submitting ? "Saving…" : "Save new password"}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onDone}>
+          {saved ? "Close" : "Cancel"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }) {
   const [filter, setFilter] = useState<api.AppointmentStatus | "ALL">("PENDING");
   const [appointments, setAppointments] = useState<api.AppointmentAdmin[]>([]);
@@ -107,6 +158,7 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
   const [actionError, setActionError] = useState<string | null>(null);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   function loadAppointments() {
     setListLoading(true);
@@ -172,6 +224,12 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
                 Download Excel
               </button>
               <button
+                onClick={() => setChangingPassword((open) => !open)}
+                className="inline-flex h-10 items-center rounded-lg px-3 text-sm font-semibold text-body hover:bg-gray-100"
+              >
+                Change password
+              </button>
+              <button
                 onClick={onSessionExpired}
                 className="inline-flex h-10 items-center rounded-lg px-3 text-sm font-semibold text-body hover:bg-gray-100"
               >
@@ -179,6 +237,10 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
               </button>
             </div>
           </div>
+
+          {changingPassword && (
+            <ChangePasswordForm onDone={() => setChangingPassword(false)} onSessionExpired={onSessionExpired} />
+          )}
 
           <div className="mt-6 flex flex-wrap gap-2">
             {STATUS_FILTERS.map((f) => (

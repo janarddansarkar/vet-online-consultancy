@@ -180,6 +180,16 @@ export async function adminLogin(password: string) {
   localStorage.setItem(ADMIN_TOKEN_KEY, res.access_token);
 }
 
+// Signs out every other admin session; this one keeps working on the fresh token.
+export async function changeAdminPassword(input: { current_password: string; new_password: string }) {
+  const res = await request<{ access_token: string }>("/admin/change-password", {
+    method: "POST",
+    headers: adminHeaders(),
+    body: JSON.stringify(input),
+  });
+  localStorage.setItem(ADMIN_TOKEN_KEY, res.access_token);
+}
+
 export function listAdminAppointments(status?: AppointmentStatus) {
   const qs = status ? `?status=${status}` : "";
   return request<AppointmentAdmin[]>(`/admin/appointments${qs}`, { headers: adminHeaders() });

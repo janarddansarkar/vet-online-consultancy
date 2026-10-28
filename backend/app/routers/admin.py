@@ -11,16 +11,17 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.deps import require_admin
-from app.models import Appointment, AppointmentStatus, PetGender
+from app.deps import current_admin_password_material, require_admin
+from app.models import AdminCredential, Appointment, AppointmentStatus, PetGender
 from app.schemas import (
+    AdminChangePasswordRequest,
     AdminLoginRequest,
     AdminTokenResponse,
     AppointmentAdminOut,
     AppointmentOut,
     AppointmentStatusUpdateRequest,
 )
-from app.security import create_admin_token
+from app.security import create_admin_token, hash_password, verify_password
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 # Everything except /login needs the doctor's admin token.
@@ -32,8 +33,8 @@ LOCKOUT_SECONDS = 600
 _failed_logins: dict[str, list[float]] = {}
 
 
-@router.post("/login", response_model=AdminTokenResponse)
-def admin_login(payload: AdminLoginRequest, request: Request) -> AdminTokenResponse:
+def _check_admin_password(password: str, request: Request, db: Session) -> str:
+    """Verifies the admin password with a per-client lockout; returns the password material tokens are bound to."""
     client = request.client.host if request.client else "unknown"
     now = time.monotonic()
     recent = [t for t in _failed_logins.get(client, []) if now - t < LOCKOUT_SECONDS]
@@ -41,12 +42,42 @@ def admin_login(payload: AdminLoginRequest, request: Request) -> AdminTokenRespo
         _failed_logins[client] = recent
         raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Too many attempts. Try again later.")
 
-    if not secrets.compare_digest(payload.password.encode(), settings.admin_password.encode()):
+    credential = db.get(AdminCredential, 1)
+    if credential is not None:
+        valid = verify_password(password, credential.password_hash)
+    else:
+        valid = secrets.compare_digest(password.encode(), settings.admin_password.encode())
+    if not valid:
         _failed_logins[client] = recent + [now]
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
 
     _failed_logins.pop(client, None)
-    return AdminTokenResponse(access_token=create_admin_token())
+    return current_admin_password_material(db)
+
+
+@router.post("/login", response_model=AdminTokenResponse)
+def admin_login(payload: AdminLoginRequest, request: Request, db: Session = Depends(get_db)) -> AdminTokenResponse:
+    return AdminTokenResponse(access_token=create_admin_token(_check_admin_password(payload.password, request, db)))
+
+
+@protected.post("/change-password", response_model=AdminTokenResponse)
+def change_admin_password(
+    payload: AdminChangePasswordRequest, request: Request, db: Session = Depends(get_db)
+) -> AdminTokenResponse:
+    """Stores the new password as a hash. Every other admin session is signed out; this one gets a fresh token."""
+    _check_admin_password(payload.current_password, request, db)
+    if payload.new_password == payload.current_password:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Choose a password different from the current one")
+
+    new_hash = hash_password(payload.new_password)
+    credential = db.get(AdminCredential, 1)
+    if credential is None:
+        db.add(AdminCredential(id=1, password_hash=new_hash))
+    else:
+        credential.password_hash = new_hash
+    db.commit()
+    return AdminTokenResponse(access_token=create_admin_token(new_hash))
+
 
 ALLOWED_TRANSITIONS: dict[AppointmentStatus, set[AppointmentStatus]] = {
     AppointmentStatus.PENDING: {AppointmentStatus.CONFIRMED, AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED},
