@@ -26,7 +26,7 @@ export interface Pet {
   medical_history: string | null;
 }
 
-export type AppointmentStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+export type AppointmentStatus = "BOOKED" | "COMPLETED";
 
 export interface Appointment {
   id: string;
@@ -154,6 +154,10 @@ export function createAppointment(token: string, input: AppointmentInput) {
     headers: authHeaders(token),
     body: JSON.stringify(input),
   });
+}
+
+export function listMyAppointments(token: string) {
+  return request<Appointment[]>("/appointments", { headers: authHeaders(token) });
 }
 
 // The admin session is separate from owner accounts: it has its own token.

@@ -51,6 +51,9 @@ export function Header() {
           {user ? (
             <>
               <span className="text-sm font-medium text-body">Hi, {greetingName(user.full_name)}</span>
+              <Button variant="text" href="/my-bookings">
+                My bookings
+              </Button>
               <Button variant="primary" href="/book">
                 Book Now
               </Button>
@@ -94,6 +97,9 @@ export function Header() {
           <div className="mt-2 flex flex-wrap gap-3 px-3">
             {user ? (
               <>
+                <Button variant="secondary" href="/my-bookings" className="flex-1">
+                  My bookings
+                </Button>
                 <Button variant="primary" href="/book" className="flex-1">
                   Book Now
                 </Button>

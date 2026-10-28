@@ -181,7 +181,7 @@ export function Book() {
               </div>
               <div className="flex justify-between py-1">
                 <span className="text-muted">Status</span>
-                <span className="font-semibold text-ink">Waiting for Dr. Sarkar</span>
+                <span className="font-semibold text-ink">Booked</span>
               </div>
             </div>
             {shareHref && (
@@ -196,8 +196,8 @@ export function Book() {
               </a>
             )}
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button variant="secondary" href="/" className="flex-1">
-                Back to home
+              <Button variant="secondary" href="/my-bookings" className="flex-1">
+                My bookings
               </Button>
               <Button
                 variant="primary"

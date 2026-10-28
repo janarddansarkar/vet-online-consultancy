@@ -35,10 +35,8 @@ class PetGender(str, enum.Enum):
 
 
 class AppointmentStatus(str, enum.Enum):
-    PENDING = "PENDING"
-    CONFIRMED = "CONFIRMED"
+    BOOKED = "BOOKED"
     COMPLETED = "COMPLETED"
-    CANCELLED = "CANCELLED"
 
 
 def pg_enum(python_enum: type[enum.Enum], name: str) -> PgEnum:
@@ -106,7 +104,7 @@ class Appointment(Base):
     home_visit_address: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     status: Mapped[AppointmentStatus] = mapped_column(
-        pg_enum(AppointmentStatus, "appointment_status"), default=AppointmentStatus.PENDING, index=True, nullable=False
+        pg_enum(AppointmentStatus, "appointment_status"), default=AppointmentStatus.BOOKED, index=True, nullable=False
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), nullable=False)
 

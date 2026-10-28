@@ -138,10 +138,8 @@ def change_admin_password(
 
 
 ALLOWED_TRANSITIONS: dict[AppointmentStatus, set[AppointmentStatus]] = {
-    AppointmentStatus.PENDING: {AppointmentStatus.CONFIRMED, AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED},
-    AppointmentStatus.CONFIRMED: {AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED},
+    AppointmentStatus.BOOKED: {AppointmentStatus.COMPLETED},
     AppointmentStatus.COMPLETED: set(),
-    AppointmentStatus.CANCELLED: set(),
 }
 
 

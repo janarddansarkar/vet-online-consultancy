@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.capacity import ensure_booking_capacity
 from app.database import get_db
@@ -13,6 +13,23 @@ from app.models import (
 from app.schemas import AppointmentCreateRequest, AppointmentOut
 
 router = APIRouter(prefix="/api/appointments", tags=["appointments"])
+
+
+@router.get("", response_model=list[AppointmentOut])
+def list_my_appointments(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[Appointment]:
+    """The signed-in owner's own bookings, newest first."""
+    return (
+        db.query(Appointment)
+        .join(Pet, Appointment.pet_id == Pet.id)
+        .options(joinedload(Appointment.pet))
+        .filter(Pet.owner_id == current_user.id)
+        .order_by(Appointment.created_at.desc())
+        .all()
+    )
+
 
 @router.post("", response_model=AppointmentOut, status_code=status.HTTP_201_CREATED)
 def create_appointment(
@@ -38,7 +55,7 @@ def create_appointment(
         contact_phone=payload.contact_phone.strip(),
         home_visit_required=payload.home_visit_required,
         home_visit_address=home_visit_address,
-        status=AppointmentStatus.PENDING,
+        status=AppointmentStatus.BOOKED,
     )
     db.add(appointment)
     db.commit()

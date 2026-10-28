@@ -10,19 +10,17 @@ import { buildWhatsAppLink } from "../lib/whatsapp";
 import { SEX_LABELS, formatAge, petLabel } from "../lib/pet";
 
 const STATUS_FILTERS: { label: string; value: api.AppointmentStatus | "ALL" }[] = [
-  { label: "Pending", value: "PENDING" },
-  { label: "Confirmed", value: "CONFIRMED" },
+  { label: "Booked", value: "BOOKED" },
   { label: "Completed", value: "COMPLETED" },
-  { label: "Cancelled", value: "CANCELLED" },
   { label: "All", value: "ALL" },
 ];
 
 const STATUS_BADGE_CLASSES: Record<api.AppointmentStatus, string> = {
-  PENDING: "bg-amber-50 text-amber-700",
-  CONFIRMED: "bg-blue-50 text-blue-700",
+  BOOKED: "bg-amber-50 text-amber-700",
   COMPLETED: "bg-primary-50 text-primary-700",
-  CANCELLED: "bg-danger-50 text-danger-600",
 };
+
+const STATUS_LABELS: Record<api.AppointmentStatus, string> = { BOOKED: "Booked", COMPLETED: "Completed" };
 
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString([], {
@@ -172,13 +170,12 @@ function ChangePasswordForm({ onDone, onSessionExpired }: { onDone: () => void; 
 }
 
 function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }) {
-  const [filter, setFilter] = useState<api.AppointmentStatus | "ALL">("PENDING");
+  const [filter, setFilter] = useState<api.AppointmentStatus | "ALL">("BOOKED");
   const [appointments, setAppointments] = useState<api.AppointmentAdmin[]>([]);
   const [listLoading, setListLoading] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [pendingActionId, setPendingActionId] = useState<string | null>(null);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
   const [capacity, setCapacity] = useState<{ total: number; limit: number } | null>(null);
   const [resetting, setResetting] = useState(false);
@@ -237,7 +234,6 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
           ? prev.map((a) => (a.id === appointmentId ? updated : a))
           : prev.filter((a) => a.id !== appointmentId)
       );
-      setCancellingId(null);
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onSessionExpired();
       setActionError(err instanceof ApiError ? err.message : "Couldn't update the appointment. Please try again.");
@@ -343,9 +339,7 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
 
             {appointments.map((appointment) => {
               const isPending = pendingActionId === appointment.id;
-              const canConfirm = appointment.status === "PENDING";
-              const canComplete = appointment.status === "PENDING" || appointment.status === "CONFIRMED";
-              const canCancel = appointment.status === "PENDING" || appointment.status === "CONFIRMED";
+              const canComplete = appointment.status === "BOOKED";
 
               return (
                 <div key={appointment.id} className="rounded-2xl border border-border bg-white p-6">
@@ -356,7 +350,7 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
                           {petLabel(appointment.pet)} <span className="font-normal text-muted">({appointment.pet.species})</span>
                         </h2>
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE_CLASSES[appointment.status]}`}>
-                          {appointment.status}
+                          {STATUS_LABELS[appointment.status]}
                         </span>
                         {appointment.home_visit_required && (
                           <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
@@ -409,42 +403,12 @@ function AppointmentsView({ onSessionExpired }: { onSessionExpired: () => void }
                     )}
                   </div>
 
-                  {cancellingId === appointment.id ? (
-                    <div className="mt-4 flex flex-col gap-3 rounded-xl bg-bg p-4 sm:flex-row sm:items-center">
-                      <p className="flex-1 text-sm font-medium text-ink">Cancel this request? This can't be undone.</p>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="danger"
-                          disabled={isPending}
-                          onClick={() => handleStatusChange(appointment.id, "CANCELLED")}
-                        >
-                          {isPending ? "Cancelling…" : "Confirm cancel"}
-                        </Button>
-                        <Button variant="text" onClick={() => setCancellingId(null)}>
-                          Back
-                        </Button>
-                      </div>
+                  {canComplete && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Button variant="primary" disabled={isPending} onClick={() => handleStatusChange(appointment.id, "COMPLETED")}>
+                        {isPending ? "Saving…" : "Mark completed"}
+                      </Button>
                     </div>
-                  ) : (
-                    (canConfirm || canComplete || canCancel) && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {canConfirm && (
-                          <Button variant="secondary" disabled={isPending} onClick={() => handleStatusChange(appointment.id, "CONFIRMED")}>
-                            Confirm
-                          </Button>
-                        )}
-                        {canComplete && (
-                          <Button variant="primary" disabled={isPending} onClick={() => handleStatusChange(appointment.id, "COMPLETED")}>
-                            Mark completed
-                          </Button>
-                        )}
-                        {canCancel && (
-                          <Button variant="danger" disabled={isPending} onClick={() => setCancellingId(appointment.id)}>
-                            Cancel
-                          </Button>
-                        )}
-                      </div>
-                    )
                   )}
                 </div>
               );
