@@ -190,6 +190,12 @@ Do **not** register test users or create bookings on the live site. If you need 
    cd /opt/vet && ./backup-db.sh && ls -lh backups/
    (crontab -l 2>/dev/null; echo '30 2 * * * cd /opt/vet && ./backup-db.sh') | crontab -
    ```
+   If the server runs the Traefik setup, the compose file is `docker-compose.traefik.yml`, not `docker-compose.yml`. Without `COMPOSE_FILE` the script fails with "no configuration file provided" (an unfixed script left an empty dump in this case). Use this in both commands instead:
+   ```bash
+   cd /opt/vet && COMPOSE_FILE=docker-compose.traefik.yml ./backup-db.sh && ls -lh backups/
+   (crontab -l 2>/dev/null; echo '30 2 * * * cd /opt/vet && COMPOSE_FILE=docker-compose.traefik.yml ./backup-db.sh') | crontab -
+   ```
+   The script now exits with an error and keeps no file if the dump is empty. The first scheduled run is only proven when `ls -lh /opt/vet/backups` shows a file from 02:30 of about 2 KB or more.
    Tell the user to copy `/opt/vet/backups` off the server now and then, and to enable the provider's VPS snapshots.
 2. **Restart on boot**: containers restart automatically (`restart: unless-stopped`). Check Docker restarts on boot: `systemctl is-enabled docker`. Ask before rebooting the server; after a reboot `docker compose ps` should show everything back up without any action.
 3. **Security updates**: offer `apt-get install -y unattended-upgrades` and ask before enabling. Do not change SSH settings unless the user asks.
