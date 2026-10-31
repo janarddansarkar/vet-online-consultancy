@@ -13,7 +13,7 @@ const doctor = {
   specialty: "Pet Animal Care · Veterinary Pathology",
   experience: "BVSc & A.H, MVSc (Pursuing)",
   price: "Consultation fee on booking",
-  bio: "Dr. Nituporna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, under Dr. Arup Das (veterinary surgeon), and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
+  bio: "Dr. Nituporna Sarkar offers online veterinary consultations for dogs, cats, and other companion animals — from everyday health concerns to nutrition, skin, dental, and behaviour guidance. She currently practices as an Assistant Veterinary Doctor at Progressive Pet Clinic, Guwahati, and is pursuing her Masters in Veterinary Pathology at the College of Veterinary Science, AVFU, Khanapara.",
 };
 
 const education = [
@@ -25,7 +25,7 @@ const experience = [
   {
     period: "Jan 2026 – Present",
     title: "Assistant Veterinary Doctor",
-    place: "Progressive Pet Clinic, VIP Road, Guwahati (under Dr. Arup Das, Surgeon)",
+    place: "Progressive Pet Clinic, VIP Road, Guwahati",
     points: [
       "Diagnosis, management & treatment of a wide range of clinical cases",
       "Laboratory tests, techniques and interpretation of different conditions",
@@ -77,8 +77,7 @@ const skills = [
 ];
 
 const stats = [
-  { value: "100+", label: "Clinical cases managed" },
-  { value: "<10", label: "Mortalities across those cases" },
+  { value: "500+", label: "Clinical cases managed" },
   { value: "20+", label: "Pet post-mortems" },
   { value: "8+", label: "Wild elephant post-mortems" },
 ];
@@ -269,7 +268,7 @@ export function Home() {
               <span className="text-xs font-semibold uppercase tracking-wide text-primary-600">Clinical experience</span>
               <h2 className="mt-3 text-3xl font-bold text-ink">Cases handled</h2>
               <p className="mt-2 max-w-2xl text-base text-body">
-                Over 100 clinical cases managed with fewer than 10 mortalities, covering conditions such as:
+                Over 500 clinical cases managed, covering conditions such as:
               </p>
             </Reveal>
 
